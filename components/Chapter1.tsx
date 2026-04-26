@@ -1,15 +1,25 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Stars from "./Stars";
 import Clouds from "./Clouds";
 import Reveal from "./Reveal";
 import ChapterLabel from "./ChapterLabel";
 
 function Avatar() {
+  const imgRef = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
   const showImage = loaded && !errored;
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img?.complete) {
+      if (img.naturalWidth > 0) setLoaded(true);
+      else setErrored(true);
+    }
+  }, []);
+
   return (
     <div className="relative w-12 h-12 rounded-full bg-gradient-to-tr from-amber-glow via-rose-400 to-plum-500 p-[2px] shrink-0">
       <div className="relative w-full h-full rounded-full bg-ink overflow-hidden">
@@ -18,6 +28,7 @@ function Avatar() {
         </div>
         {!errored && (
           <img
+            ref={imgRef}
             src="/images/drashti-avatar.png"
             alt="Drashti"
             onLoad={() => setLoaded(true)}

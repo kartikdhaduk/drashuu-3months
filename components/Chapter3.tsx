@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Reveal from "./Reveal";
 import ChapterLabel from "./ChapterLabel";
 
@@ -15,10 +15,21 @@ function CallTile({
   tileGradient: string;
   location: string;
 }) {
+  const imgRef = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
   const showImage = loaded && !errored;
   const isHer = fallback === "Drashti";
+
+  // catch the case where the image is already cached and loaded
+  // before React attached the onLoad handler
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img?.complete) {
+      if (img.naturalWidth > 0) setLoaded(true);
+      else setErrored(true);
+    }
+  }, []);
 
   return (
     <div
@@ -38,6 +49,7 @@ function CallTile({
       {/* image — only painted when successfully loaded */}
       {!errored && (
         <img
+          ref={imgRef}
           src={src}
           alt={fallback}
           onLoad={() => setLoaded(true)}
